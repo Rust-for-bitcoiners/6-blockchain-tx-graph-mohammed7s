@@ -115,44 +115,6 @@ impl<T: Eq + PartialEq + Hash + Debug> Graph<T> {
         }
         false
     }
-
-
-
-        
-//         // let u_rc = Rc::new(u.clone());
-//         // let v_rc = Rc::new(v.clone());
-//         //let u_rc = self.edges.keys().find(|key| ***key == *u).unwrap().clone();
-//         //let v_rc = self.edges.keys().find(|key| ***key == *v).unwrap().clone();
-        
-//         // Try to find Rc<T> for u and v in the graph
-//         let u_rc = match self.edges.keys().find(|key| ***key == *u) {
-//             Some(rc) => rc.clone(),
-//             None => return false,
-//         };
-
-//         let v_rc = match self.edges.keys().find(|key| ***key == *v) {
-//             Some(rc) => rc.clone(),
-//             None => return false,
-//         };
-        
-
-//         queue.push_back(u_rc.clone());
-//         visited.insert(u_rc.clone());
-
-//         while let Some(current) = queue.pop_front() {
-//             if Rc::ptr_eq(&current, &v_rc) {
-//                 return true;
-//             }
-//             if let Some(neighbors) = self.edges.get(&current) {
-//                 for neighbor in neighbors {
-//                     if visited.insert(neighbor.clone()) {
-//                         queue.push_back(neighbor.clone());
-//                     }
-//                 }
-//             }
-//         }
-//         false
-//     }
 }
 
 // Write your own tests if needed
