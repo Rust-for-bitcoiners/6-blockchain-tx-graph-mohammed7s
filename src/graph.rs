@@ -1,5 +1,5 @@
 #![allow(unused)]
-use std::{collections::{HashMap, HashSet, VecDeque}, hash::Hash, rc::Rc};
+use std::{collections::{HashMap, HashSet, VecDeque}, fmt::Debug, hash::Hash, rc::Rc};
 
 
 pub struct Graph<T> {
@@ -12,42 +12,74 @@ pub struct Graph<T> {
     edges: HashMap<Rc<T>, HashSet<Rc<T>>>,
 }
 
-impl<T: Eq + PartialEq + Hash> Graph<T> {
+impl<T: Eq + PartialEq + Hash + Debug> Graph<T> {
     pub fn new() -> Graph<T> {
-        todo!();
+        Graph {
+            edges: HashMap::new(),
+        }
     }
 
+    // get all vertices in the graph 
     pub fn vertices(&self) -> Vec<Rc<T>> {
-        todo!();
+        self.edges.keys().cloned().collect()
     }
 
+    // insert a vertex into the graph 
     pub fn insert_vertex(&mut self, u: T) {
-        todo!();
+        let u_rc = Rc::new(u);
+        self.edges.entry(u_rc).or_insert(HashSet::new());
     }
 
     pub fn insert_edge(&mut self, u: T, v: T) {
         // node u can already be in the HashMap or it is not in the HashMap
-        todo!();
+        
+        // ensure vertex u is in the graph 
+        let u_rc = Rc::new(u);
+        self.edges.entry(Rc::clone(&u_rc)).or_insert_with(HashSet::new); 
+
+        // ensure vertex v is in the graph 
+        let v_rc = Rc::new(v);
+        self.edges.entry(Rc::clone(&v_rc)).or_insert_with(HashSet::new); 
+
+        // add edge from u to v 
+        self.edges.get_mut(&u_rc).unwrap().insert(Rc::clone(&v_rc)); 
     }
 
     pub fn remove_edge(&mut self, u: &T, v: &T) {
-        todo!();
+        if let Some(neighbors) = self.edges.get_mut(u) {
+            neighbors.remove(v);
+        }
     }
 
+    // Remove a vertex and all associated edges from the graph
     pub fn remove_vertex(&mut self, u: &T) {
-        todo!();
+        self.edges.remove(u);
+        for neighbors in self.edges.values_mut() {
+            neighbors.remove(u);
+        }
     }
 
+    // Check if a vertex is present in the graph
     pub fn contains_vertex(&self, u: &T) -> bool {
-        todo!();
+        self.edges.contains_key(u)
     }
 
-    pub fn contains_edge(&mut self, u: &T, v: &T) -> bool {
-        todo!();
+    // Check if an edge between two vertices is present in the graph
+    pub fn contains_edge(&self, u: &T, v: &T) -> bool {
+        //let u_rc = Rc::clone(&u); 
+        //let v_rc = Rc::clone(&u); 
+        if let Some(neighbors) = self.edges.get(u) {
+            return neighbors.contains(v);
+        }
+        false
     }
 
+    // Get all neighbors of a vertex in the graph
     pub fn neighbors(&self, u: &T) -> Vec<Rc<T>> {
-        todo!();
+        if let Some(neighbors) = self.edges.get(u) {
+            return neighbors.iter().cloned().collect();
+        }
+        Vec::new()
     }
 
     pub fn path_exists_between(&self, u: &T, v: &T) -> bool {
@@ -55,8 +87,72 @@ impl<T: Eq + PartialEq + Hash> Graph<T> {
         // bfs requires a queue data structure refer https://doc.rust-lang.org/std/collections/struct.VecDeque.html
         // dfs requires recursion
         // in both cases keep track of visited nodes using HashSet
-        todo!();
+        let mut visited = HashSet::new();
+        let mut queue = VecDeque::new();
+
+        // Check if both vertices exist in the graph
+        if !self.contains_vertex(u) || !self.contains_vertex(v) {
+            return false;
+        }
+
+        queue.push_back(u);
+        visited.insert(u);
+
+        while let Some(current) = queue.pop_front() {
+            println!("Visiting vertex: {:?}", current);
+            if current == v {
+                println!("Path found!");
+                return true;
+            }
+            if let Some(neighbors) = self.edges.get(current) {
+                println!("Neighbors of {:?}: {:?}", current, neighbors);
+                for neighbor in neighbors {
+                    if visited.insert(neighbor) {
+                        queue.push_back(neighbor);
+                    }
+                }
+            }
+        }
+        false
     }
+
+
+
+        
+//         // let u_rc = Rc::new(u.clone());
+//         // let v_rc = Rc::new(v.clone());
+//         //let u_rc = self.edges.keys().find(|key| ***key == *u).unwrap().clone();
+//         //let v_rc = self.edges.keys().find(|key| ***key == *v).unwrap().clone();
+        
+//         // Try to find Rc<T> for u and v in the graph
+//         let u_rc = match self.edges.keys().find(|key| ***key == *u) {
+//             Some(rc) => rc.clone(),
+//             None => return false,
+//         };
+
+//         let v_rc = match self.edges.keys().find(|key| ***key == *v) {
+//             Some(rc) => rc.clone(),
+//             None => return false,
+//         };
+        
+
+//         queue.push_back(u_rc.clone());
+//         visited.insert(u_rc.clone());
+
+//         while let Some(current) = queue.pop_front() {
+//             if Rc::ptr_eq(&current, &v_rc) {
+//                 return true;
+//             }
+//             if let Some(neighbors) = self.edges.get(&current) {
+//                 for neighbor in neighbors {
+//                     if visited.insert(neighbor.clone()) {
+//                         queue.push_back(neighbor.clone());
+//                     }
+//                 }
+//             }
+//         }
+//         false
+//     }
 }
 
 // Write your own tests if needed
