@@ -2,7 +2,8 @@
 use std::{collections::{HashMap, HashSet, VecDeque}, fmt::Debug, hash::Hash, rc::Rc};
 
 
-pub struct Graph<T> {
+#[derive(Debug)]
+pub struct Graph<T:Debug>{
     // We have a set of nodes called Vertex set
     // And each node can point to any other node in the vertex set
     // the pair (u, v) means from u to v there is an edge
